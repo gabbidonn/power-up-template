@@ -569,6 +569,7 @@
           dataType   : 'json',
           cache      : false,
           type       : 'POST',
+          crossDomain: true,
           headers    : self.jsonrpcclient.options.headers,
           xhrFields  : self.jsonrpcclient.options.xhrFields,
   
