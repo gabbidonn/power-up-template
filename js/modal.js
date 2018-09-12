@@ -7,22 +7,43 @@ console.dir(t);
       let listID = t.arg("listID");
      //let tracUrl = 'https://delta.api:D3Lt445c!@platinum.deltafs.net/trac/login/jsonrpc:443';
      let tracUrl = '/genius.co.uk/proxy.php';
-     
+
+     let creationSuccess = function(data) {
+      console.dir(data);
+     };
+
+     let storyParams = {
+      method: 'ticket.get',
+      params: [] 
+    };
+
+     storiesCallback = function(stories) {
+      
+      stories.forEach(story => {
+        let newCard = {
+          name: 'New Test Card', 
+          desc: 'This is the description of our new card.',
+          // Place this card at the top of our list 
+          idList: listID,
+          pos: 'top'
+        };
+        
+        storyParams.params = []
+
+        t.Trello.post('/cards/', newCard, creationSuccess);
+ 
+      });
+     };
+
+
+     // Get all stories currently outstanding for PO.
      let params = {};
      params.method = "ticket.query";
-     params.params = ;
-            
-     $.post(tracUrl,params,function(data) { console.dir(data); }, "json");
+     params.params = ["status=awaitingreview_story&status=reviewing_story&backlog=Business&group=status&order=priority&max=0&col=status"];
      
-     let newCard = {
-            name: 'New Test Card', 
-            desc: 'This is the description of our new card.',
-            // Place this card at the top of our list 
-            idList: listID,
-            pos: 'top'
-          };
-          
-          window.Trello.post('/cards/', newCard, creationSuccess);
+     // Get the stories.
+     $.post(tracUrl,params,storiesCallback, "json");
+     
 
 
 // Important! If you are using the overlay, you should implement
