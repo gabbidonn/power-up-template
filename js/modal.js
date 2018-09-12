@@ -5,40 +5,34 @@ var t = TrelloPowerUp.iframe();
 console.dir(t);
 // you can access arguments passed to your iframe like so
       let listID = t.arg("listID");
-     //let tracUrl = 'https://delta.api:D3Lt445c!@platinum.deltafs.net/trac/login/jsonrpc';
-     let tracUrl = 'https://platinum.deltafs.net/trac/login/jsonrpc:443';
+     //let tracUrl = 'https://delta.api:D3Lt445c!@platinum.deltafs.net/trac/login/jsonrpc:443';
+     let tracUrl = 'https://platinum.deltafs.net:443/trac/login/jsonrpc';
      
-     /*let trac =  new $.JsonRpcClient(
-              {
-               ajaxUrl: 'https://delta.api:D3Lt445c!@platinum.deltafs.net/trac/login/jsonrpc:443',
-               headers: {'Content-Type': 'application/json'}*/
-               /*headers: {'user': 'delta.api', 'password': 'D3Lt445c!', 'Content-Type': 'application/json'}*/
-              /*}
-            );*/
+     let username =  "delta.api";
+     let password =  "D3Lt445c!";
 
-            $.ajaxSetup({
-              crossDomain: true,
-              beforeSend: function (xhr)
+     $.ajaxPrefilter(function(options) {
+      if (options.crossDomain && jQuery.support.cors) {
+          options.url = 'https://cors-anywhere.herokuapp.com/' + options.url;
+      }
+      });
+     let trac =  new $.JsonRpcClient(
               {
-                xhr.setRequestHeader("Authorization","Basic " + btoa("delta.api:D3Lt445c!"));        
-              },
-              xhrFields: {
-                  withCredentials: true
-              }              
-          });
-        
-            var request = {};
-        request.method = "ticket.type.getAll";
-        request.params = {};
-        /*request.params.username = "delta.api";
-        request.params.password = "D3Lt445c!"*/
-        /*request.params["content-type"] = "application/json";*/
-        $.post(tracUrl, JSON.stringify(request), function(result) { alert('Foo bar answered: ' + result);console.dir(result) }, "json");  
-        /*    trac.call(
-              'ticket.type.getAll',{}, 
+               ajaxUrl: tracUrl,
+               headers: {'Authorization': 'Basic ' + btoa("delta.api:D3Lt445c!"), 'Content-Type': 'application/json'},
+               xhrFields: {"Origin": "platinum.deltafs.net"}
+               }
+            );
+            
+            let params = {};
+            /*params.username = username;
+            params.password = password;
+            params["content-type"] = "application/json";*/
+            trac.call(
+              'ticket.type.getAll',params, 
                 function(result) { alert('Foo bar answered: ' + result);console.dir(result) },
                 function(error)  { console.log('There was an error', error); }
-            );*/
+            );
             
         
            
