@@ -5,8 +5,8 @@ var t = TrelloPowerUp.iframe();
 console.dir(t);
 // you can access arguments passed to your iframe like so
       let listID = t.arg("listID");
-     //let tracUrl = 'https://delta.api:D3Lt445c!@platinum.deltafs.net/trac/login/jsonrpc:443';
-     //let tracUrl = 'https://platinum.deltafs.net/trac/login/jsonrpc';
+     //let tracUrl = 'https://delta.api:D3Lt445c!@platinum.deltafs.net/trac/login/jsonrpc';
+     let tracUrl = 'https://platinum.deltafs.net/trac/login/jsonrpc:443';
      
      /*let trac =  new $.JsonRpcClient(
               {
@@ -18,24 +18,21 @@ console.dir(t);
 
             $.ajaxSetup({
               crossDomain: true,
+              beforeSend: function (xhr)
+              {
+                xhr.setRequestHeader("Authorization","Basic " + btoa("delta.api:D3Lt445c!"));        
+              },
               xhrFields: {
                   withCredentials: true
-              },
-              username: 'delta.api',
-              password: 'D3Lt445c!'
+              }              
           });
         
             var request = {};
         request.method = "ticket.type.getAll";
         request.params = {};
-        request.params.username = "delta.api";
-        request.params.password = "D3Lt445c!"
-        /*request.params.CID = "45d0677d-a336-463b-ad99-c82137d03a00";
-        request.params.baseDN = "ou=people,dc=example,dc=com";
-        request.params.scope = "ONE";
-        request.params.filter = "(givenName=John)";*/
-        request.id = 1;
-        request.jsonrpc = "2.0";
+        /*request.params.username = "delta.api";
+        request.params.password = "D3Lt445c!"*/
+        /*request.params["content-type"] = "application/json";*/
         $.post(tracUrl, JSON.stringify(request), function(result) { alert('Foo bar answered: ' + result);console.dir(result) }, "json");  
         /*    trac.call(
               'ticket.type.getAll',{}, 
