@@ -5,7 +5,7 @@ var t = TrelloPowerUp.iframe();
 
 
     let listID = t.arg("listID");
-    console.dir(listID); 
+     
     //let tracUrl = 'https://delta.api:D3Lt445c!@platinum.deltafs.net/trac/login/jsonrpc:443';
      let tracUrl = '/genius.co.uk/proxy.php';
 
@@ -19,29 +19,36 @@ var t = TrelloPowerUp.iframe();
     };
 
     let storiesCallback = function(stories) {
-      stories.forEach((story) => {
-        storyParams.params = [story];
-        $.post(tracUrl, storyParams, function(storyInfo) {
+      
+      let createCardCallback = function(apiKeyToken) {
         
-          console.dir(storyInfo);
-          let api = window.localStorage.getItem("api");
-          // Now we need to go through each array and create the card here
-          storyInfo.forEach(function(storyDetail) {
-            
-            $.post(api + 'cards/',{
-                key: 
-                name: storyDetail.Subject, 
-                desc: storyInfo.Description,
-                // Place this card at the top of our list 
-                idList: listID,
-                pos: 'top'            
-            }, creationSuccess);
-          });        
-  
-        }, "json"); 
-      });
-     };
+        console.dir(apiKeyToken);
+        
+        stories.forEach((story) => {
+          storyParams.params = [story];
+          $.post(tracUrl, storyParams, function(storyInfo) {
+          
+            // Now we need to go through each array and create the card here
+            storyInfo.forEach(function(storyDetail) {
+              console.dir(storyDetail);
+              $.post('https://api.trello.com/1/cards/',{
+                  token: apiKeyToken.token,
+                  key: apiKeyToken.apiKey,
+                  name: storyDetail.summary, 
+                  desc: storyDetail.description,
+                  // Place this card at the top of our list 
+                  idList: listID,
+                  pos: 'top'            
+              }, creationSuccess);
+            });        
+    
+          }, "json"); 
+        });
+      };
 
+      t.get('member', 'private', 'token')
+      .then(createCardCallback);
+     };
 
      // Get all stories currently outstanding for PO.
      let params = {};

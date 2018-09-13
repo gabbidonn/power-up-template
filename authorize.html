@@ -18,8 +18,8 @@
       var t = TrelloPowerUp.iframe();
 
       var apiKey = t.arg('apiKey'); // Passed in as an argument to our iframe
-
-      var trelloAuthUrl = `https://trello.com/1/authorize?expiration=30days&name=Delta%20Trac%20Integration&scope=read,write&key=${apiKey}&callback_method=fragment&return_url=${window.location.origin}%2Fauth-success.html`;
+      
+      var trelloAuthUrl = `https://trello.com/1/authorize?expiration=30days&name=Delta%20Trac%20Integration&scope=read&scope=write&key=${apiKey}&callback_method=fragment&return_url=${window.location.origin}%2Fgenius.co.uk%2Fauth-success.html`;
 
       var tokenLooksValid = function(token) {
         // If this returns false, the Promise won't resolve.
@@ -30,7 +30,12 @@
         t.authorize(trelloAuthUrl, { height: 680, width: 580, validToken: tokenLooksValid })
         .then(function(token){
           // store the token in Trello private Power-Up storage
-          return t.set('member', 'private', 'token', token)
+          let keyToken = {
+            'token': token,
+            'apiKey': apiKey
+          };
+
+          return t.set('member', 'private', 'token', keyToken);          
         })
         .then(function(){
           // now that we have the token we needed lets go on to letting

@@ -3,6 +3,9 @@
 // we can access Bluebird Promises as follows
 var Promise = TrelloPowerUp.Promise;
 
+
+
+
 /*
 
 Trello Data Access
@@ -267,6 +270,8 @@ var cardButtonCallback = function(t){
   */
 };
 
+
+
 // We need to call initialize to get all of our capability handles set up and registered with Trello
 TrelloPowerUp.initialize({
   // NOTE about asynchronous responses
@@ -284,7 +289,7 @@ TrelloPowerUp.initialize({
       // we can either provide a button that has a callback function
       // that callback function should probably open a popup, overlay, or boardBar
       icon: WHITE_ICON,
-      text: 'Trello 2 Trac',
+        text: 'Trello 2 Trac',
       callback: boardButtonCallback
     }];
   },
@@ -391,7 +396,7 @@ TrelloPowerUp.initialize({
     // In this case we'll open a popup to kick off the authorization flow.
     if (trelloAPIKey) {
       return t.popup({
-        title: 'My Auth Popup',
+        title: 'Authorization',
         args: { apiKey: trelloAPIKey }, // Pass in API key to the iframe
         url: './authorize.html', // Check out public/authorize.html to see how to ask a user to auth
         height: 140,
