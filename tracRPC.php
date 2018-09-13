@@ -995,6 +995,7 @@ class TracRPC
             $this->request = str_replace('[]', '{}', $this->request);
         }
 
+        
         // create XML request
         if ($this->content_type === 'xml') {
             if (!extension_loaded('xmlrpc')) {

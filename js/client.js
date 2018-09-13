@@ -137,6 +137,8 @@ var getBadges = function(t){
   });
 };
 
+//window.localStorage("api","https://api.trello.com/1/");
+
 var boardButtonCallback = function(t){
   return t.popup({
     title: 'Settings',
@@ -153,22 +155,18 @@ var boardButtonCallback = function(t){
             alert('Card created successfully.');
             console.log(JSON.stringify(data, null, 2));
           };
-          
-
+        
           // Get the current list
         t.lists('id','name')
           .then(listsCallback)                    
           .then(function(selectedLists) {
-            
-            
-
             return t.modal({            
             url: './modal.html', // The URL to load for the iframe
             args: { listID: selectedLists.id }, // Optional args to access later with t.arg('text') on './modal.html'
             accentColor: '#F2D600', // Optional color for the modal header 
             height: 500, // Initial height for iframe; not used if fullscreen is true
             fullscreen: false, // Whether the modal should stretch to take up the whole screen
-            callback: () => console.log('Goodbye.'), // optional function called if user closes modal (via `X` or escape)
+            callback: function() {}, // optional function called if user closes modal (via `X` or escape)
             title: 'Hello!', // Optional title for modal header
             // You can add up to 3 action buttons on the modal header - max 1 on the right side.
             actions: [{
@@ -276,59 +274,10 @@ TrelloPowerUp.initialize({
   // you can return a Promise (bluebird promises are included at TrelloPowerUp.Promise)
   // The Promise should resolve to the object type that is expected to be returned
   'attachment-sections': function(t, options){
-    // options.entries is a list of the attachments for this card
-    // you can look through them and 'claim' any that you want to
-    // include in your section.
-
-    // we will just claim urls for Yellowstone
-    var claimed = options.entries.filter(function(attachment){
-      return attachment.url.indexOf('http://www.nps.gov/yell/') === 0;
-    });
-
-    // you can have more than one attachment section on a card
-    // you can group items together into one section, have a section
-    // per attachment, or anything in between.
-    if(claimed && claimed.length > 0){
-      // if the title for your section requires a network call or other
-      // potentially length operation you can provide a function for the title
-      // that returns the section title. If you do so, provide a unique id for
-      // your section
-      return [{
-        id: 'Yellowstone', // optional if you aren't using a function for the title
-        claimed: claimed,
-        icon: GLITCH_ICON,
-        title: 'Example Attachment Section: Yellowstone',
-        content: {
-          type: 'iframe',
-          url: t.signUrl('./section.html', { arg: 'you can pass your section args here' }),
-          height: 230
-        }
-      }];
-    } else {
-      return [];
-    }
+    
   },
   'attachment-thumbnail': function(t, options){
-    // options.url has the url of the attachment for us
-    // return an object (or a Promise that resolves to it) with some or all of these properties:
-    // url, title, image, modified (Date), created (Date), createdBy, modifiedBy
     
-    // You should use this if you have useful information about an attached URL but it
-    // doesn't warrant pulling it out into a section via the attachment-sections capability
-    // for example if you just want to show a preview image and give it a better name
-    // then attachment-thumbnail is the best option
-    return {
-      url: options.url,
-      title: '👉 ' + options.url + ' 👈',
-      image: {
-        url: GLITCH_ICON,
-        logo: true // false if you are using a thumbnail of the content
-      },
-    };
-    
-    // if we don't actually have any valuable information about the url
-    // we can let Trello know like so:
-    // throw t.NotHandled();
   },
   'board-buttons': function(t, options){
     return [{
@@ -395,6 +344,7 @@ TrelloPowerUp.initialize({
     // when a user clicks the gear icon by your Power-Up in the Power-Ups menu
     // what should Trello show. We highly recommend the popup in this case as
     // it is the least disruptive, and fits in well with the rest of Trello's UX
+    
     return t.popup({
       title: 'Settings',
       url: './settings.html',
@@ -418,7 +368,6 @@ TrelloPowerUp.initialize({
     // When the value is false, Trello will show the user an "Authorize Account" options when
     // they click on the Power-Up's gear icon in the settings. The 'show-authorization' capability
     // below determines what should happen when the user clicks "Authorize Account"
-    
     // For instance, if your Power-Up requires a token to be set for the member you could do the following:
     return t.get('member', 'private', 'token')
     .then(function(token){
@@ -434,8 +383,8 @@ TrelloPowerUp.initialize({
     // which shows when 'authorization-status' returns { authorized: false }.
     
     // If we want to ask the user to authorize our Power-Up to make full use of the Trello API
-    // you'll need to add your API from trello.com/app-key below:
-    let trelloAPIKey = '';
+    // you'll need to add your API fromcom/app-key below:
+    let trelloAPIKey = '87d0e27326e2d4539db462814d47620c';
     // This key will be used to generate a token that you can pass along with the API key to Trello's
     // RESTful API. Using the key/token pair, you can make requests on behalf of the authorized user.
     

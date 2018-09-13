@@ -2,10 +2,11 @@
 var Promise = TrelloPowerUp.Promise;
 
 var t = TrelloPowerUp.iframe();
-console.dir(t);
-// you can access arguments passed to your iframe like so
-      let listID = t.arg("listID");
-     //let tracUrl = 'https://delta.api:D3Lt445c!@platinum.deltafs.net/trac/login/jsonrpc:443';
+
+
+    let listID = t.arg("listID");
+    console.dir(listID); 
+    //let tracUrl = 'https://delta.api:D3Lt445c!@platinum.deltafs.net/trac/login/jsonrpc:443';
      let tracUrl = '/genius.co.uk/proxy.php';
 
      let creationSuccess = function(data) {
@@ -14,24 +15,30 @@ console.dir(t);
 
      let storyParams = {
       method: 'ticket.get',
-      params: [] 
+      params: []                  
     };
 
-     storiesCallback = function(stories) {
-      
-      stories.forEach(story => {
-        let newCard = {
-          name: 'New Test Card', 
-          desc: 'This is the description of our new card.',
-          // Place this card at the top of our list 
-          idList: listID,
-          pos: 'top'
-        };
+    let storiesCallback = function(stories) {
+      stories.forEach((story) => {
+        storyParams.params = [story];
+        $.post(tracUrl, storyParams, function(storyInfo) {
         
-        storyParams.params = []
-
-        t.Trello.post('/cards/', newCard, creationSuccess);
- 
+          console.dir(storyInfo);
+          let api = window.localStorage.getItem("api");
+          // Now we need to go through each array and create the card here
+          storyInfo.forEach(function(storyDetail) {
+            
+            $.post(api + 'cards/',{
+                key: 
+                name: storyDetail.Subject, 
+                desc: storyInfo.Description,
+                // Place this card at the top of our list 
+                idList: listID,
+                pos: 'top'            
+            }, creationSuccess);
+          });        
+  
+        }, "json"); 
       });
      };
 
@@ -39,7 +46,7 @@ console.dir(t);
      // Get all stories currently outstanding for PO.
      let params = {};
      params.method = "ticket.query";
-     params.params = ["status=awaitingreview_story&status=reviewing_story&backlog=Business&group=status&order=priority&max=0&col=status"];
+     params.params = ["status=awaitingreview_story&status=reviewing_story&backlog=Business&group=status&order=priority&max=0"];
      
      // Get the stories.
      $.post(tracUrl,params,storiesCallback, "json");
