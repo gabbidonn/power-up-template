@@ -56,19 +56,20 @@ var t = TrelloPowerUp.iframe();
               });
               let listID = selectedList ? selectedList.id : lists[0].id;
               
-              $.post('https://api.trello.com/1/cards/',{
-                  token: apiKeyToken.token,
-                  key: apiKeyToken.apiKey,
-                  name: storyDetail.summary, 
-                  desc: storyDetail.description,
-                  // Place this card at the top of our list 
-                  idList: listID,
-                  pos: 'top'            
-              }, function(cardData) {
-                  creationCardCallback(cardData, story);
-                  });
-            });        
-    
+              if(storyDetail.summary && storyDetail.description) {
+                  $.post('https://api.trello.com/1/cards/',{
+                      token: apiKeyToken.token,
+                      key: apiKeyToken.apiKey,
+                      name: storyDetail.summary, 
+                      desc: storyDetail.description,
+                      // Place this card at the top of our list 
+                      idList: listID,
+                      pos: 'top'            
+                  }, function(cardData) {
+                      creationCardCallback(cardData, story);
+                      });
+                }
+            });
           }, "json"); 
         });
       };
@@ -80,7 +81,7 @@ var t = TrelloPowerUp.iframe();
      // Get all stories currently outstanding for PO.
      let params = {};
      params.method = "ticket.query";
-     params.params = ["status=awaitingreview_story&status=reviewing_story&backlog=Business&group=status&order=priority&max=0"];
+     params.params = ["status=awaitingreview_story&status=reviewing_story&backlog=Business&version=21.1&group=status&order=priority&max=0"];
      
      // Get the stories.
      $.post(tracUrl,params,storiesCallback, "json");
