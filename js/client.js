@@ -185,52 +185,44 @@ var boardButtonCallback = function(t){
           });
         })
       }
-      },
-      {
-        text: 'Open Board Bar',
-        callback: function(t){
-          return t.boardBar({
-            url: './board-bar.html',
-            height: 200
-          })
-          .then(function(){
-            return t.closePopup();
-          });
-        }
-      }
+      }      
     ]
   });
 };
 
 var cardButtonCallback = function(t){
   // Trello Power-Up Popups are actually pretty powerful
-  // Searching is a pretty common use case, so why reinvent the wheel
-  var items = ['acad', 'arch', 'badl', 'crla', 'grca', 'yell', 'yose'].map(function(parkCode){
-    var urlForCode = 'http://www.nps.gov/' + parkCode + '/';
-    var nameForCode = '🏞 ' + parkCode.toUpperCase();
-    return {
-      text: nameForCode,
-      url: urlForCode,
-      callback: function(t){
-        // In this case we want to attach that park to the card as an attachment
-        // but first let's ensure that the user can write on this model
-        if (t.memberCanWriteToModel('card')){
-          return t.attach({ url: urlForCode, name: nameForCode })
-          .then(function(){
-            // once that has completed we should tidy up and close the popup
-            return t.closePopup();
-          });
-        } else {
-          console.log("Oh no! You don't have permission to add attachments to this card.")
-          return t.closePopup(); // We're just going to close the popup for now.
-        };
+  let tracUrl = '/genius.co.uk/proxy.php';
+  let context = t.getContext();
+  if (t.memberCanWriteToModel('card')){
+    console.dir(context);
+    return t.get('board', 'shared', 'tracData')
+    .then(function(cardDetail) {
+      if(data.storyID) {
+        
+        // Get all stories currently outstanding for PO.
+        let params = {};
+        params.method = "ticket.query";
+        params.params = ["status=awaitingreview_story&status=reviewing_story&backlog=Business&version=21.1&group=status&order=priority&max=0"];
+        
+        // Get the stories.
+        $.post(tracUrl,params,storiesCallback, "json");
+
+
+
       }
-    };
-  });
+    });
+  } else {
+    console.log("Oh no! You don't have permission to add attachments to this card.")
+    return t.closePopup(); // We're just going to close the popup for now.
+  };
+
+
+  };
 
   // we could provide a standard iframe popup, but in this case we
   // will let Trello do the heavy lifting
-  return t.popup({
+  /*return t.popup({
     title: 'Popup Search Example',
     items: items, // Trello will search client-side based on the text property of the items
     search: {
@@ -238,7 +230,7 @@ var cardButtonCallback = function(t){
       placeholder: 'Search National Parks',
       empty: 'No parks found'
     }
-  });
+  });*/
   
   // in the above case we let Trello do the searching client side
   // but what if we don't have all the information up front?
@@ -258,9 +250,6 @@ var cardButtonCallback = function(t){
     }
   });
   */
-};
-
-
 
 // We need to call initialize to get all of our capability handles set up and registered with Trello
 TrelloPowerUp.initialize({
@@ -287,18 +276,13 @@ TrelloPowerUp.initialize({
     return getBadges(t);
   },
   'card-buttons': function(t, options) {
+    console.dir(options);
     return [{
       // usually you will provide a callback function to be run on button click
       // we recommend that you use a popup on click generally
       icon: GRAY_ICON, // don't use a colored icon here
-      text: 'Open Popup',
+      text: 'Update Story',
       callback: cardButtonCallback
-    }, {
-      // but of course, you could also just kick off to a url if that's your thing
-      icon: GRAY_ICON,
-      text: 'Just a URL',
-      url: 'https://developers.trello.com',
-      target: 'Trello Developer Site' // optional target for above url
     }];
   },
   'card-detail-badges': function(t, options) {
