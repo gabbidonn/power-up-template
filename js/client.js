@@ -1,10 +1,10 @@
+
+define(["powerup","jquery"], function() {
+
 /* global TrelloPowerUp BITCHES!! */
 
 // we can access Bluebird Promises as follows
 var Promise = TrelloPowerUp.Promise;
-
-
-
 
 /*
 
@@ -150,22 +150,17 @@ var boardButtonCallback = function(t){
         text: 'Update from Trac',
         callback: function(t){
           
-          let listsCallback = function (list) {
-            return list[0];
+          let listsCallback = function (lists) {
+            return lists;
           }
           
-          let creationSuccess = function (data) {
-            alert('Card created successfully.');
-            console.log(JSON.stringify(data, null, 2));
-          };
-        
           // Get the current list
         t.lists('id','name')
           .then(listsCallback)                    
           .then(function(selectedLists) {
             return t.modal({            
             url: './modal.html', // The URL to load for the iframe
-            args: { listID: selectedLists.id }, // Optional args to access later with t.arg('text') on './modal.html'
+            args: { lists: selectedLists }, // Optional args to access later with t.arg('text') on './modal.html'
             accentColor: '#F2D600', // Optional color for the modal header 
             height: 500, // Initial height for iframe; not used if fullscreen is true
             fullscreen: false, // Whether the modal should stretch to take up the whole screen
@@ -173,11 +168,6 @@ var boardButtonCallback = function(t){
             title: 'Hello!', // Optional title for modal header
             // You can add up to 3 action buttons on the modal header - max 1 on the right side.
             actions: [{
-              icon: GRAY_ICON,
-              url: 'https://google.com', // Opens the URL passed to it.
-              alt: 'Leftmost',
-              position: 'left',
-            }, {
               icon: GRAY_ICON,
               callback: (tr) => tr.popup({ // Callback to be called when user clicks the action button.
                 title: 'Settings',
@@ -408,3 +398,5 @@ TrelloPowerUp.initialize({
 });
 
 console.log('Loaded by: ' + document.referrer);
+
+});

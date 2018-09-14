@@ -1,3 +1,6 @@
+define(["powerup","jquery"], function() {
+
+
 /* global TrelloPowerUp */
 
 var t = TrelloPowerUp.iframe();
@@ -21,4 +24,7 @@ t.render(function(){
   .then(function(){
     return t.sizeTo('#content');
   });
+});
+
+
 });

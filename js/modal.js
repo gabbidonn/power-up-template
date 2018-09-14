@@ -1,16 +1,36 @@
-/* global TrelloPowerUp */
+define(["powerup","jquery"], function() {
+
+
+  let selectedStatuses = {
+    'awaitingreview_story': 'Awaiting Review',
+    'reviewing_story': 'In Review',
+    'approved_story': 'Approved'
+  };
+
+  /* global TrelloPowerUp */
 var Promise = TrelloPowerUp.Promise;
 
 var t = TrelloPowerUp.iframe();
 
-
-    let listID = t.arg("listID");
-     
-    //let tracUrl = 'https://delta.api:D3Lt445c!@platinum.deltafs.net/trac/login/jsonrpc:443';
+    let lists = t.arg("lists");
+    
      let tracUrl = '/genius.co.uk/proxy.php';
 
-     let creationSuccess = function(data) {
-      console.dir(data);
+     let creationCardCallback = function(createdCard, storyID) {
+      
+      if(createdCard) {
+        // Created story
+        let tracData = {
+          storyID: storyID,
+          tracURL: 'https://platinum.deltafs.net/trac/ticket/${storyID}'        
+        };
+        t.get(createdCard.id, 'shared', 'tracData',tracData)
+        .then(function() {
+          // successfully added trac data.  Now add the comments
+
+        });
+
+      }
      };
 
      let storyParams = {
@@ -18,19 +38,24 @@ var t = TrelloPowerUp.iframe();
       params: []                  
     };
 
+
     let storiesCallback = function(stories) {
       
       let createCardCallback = function(apiKeyToken) {
         
-        console.dir(apiKeyToken);
-        
         stories.forEach((story) => {
           storyParams.params = [story];
           $.post(tracUrl, storyParams, function(storyInfo) {
-          
+            
+            let postDetail = [];
             // Now we need to go through each array and create the card here
             storyInfo.forEach(function(storyDetail) {
-              console.dir(storyDetail);
+              
+              let selectedList = lists.find(function(list) {
+                return selectedStatuses[storyDetail.status] == list.name;  
+              });
+              let listID = selectedList ? selectedList.id : lists[0].id;
+              
               $.post('https://api.trello.com/1/cards/',{
                   token: apiKeyToken.token,
                   key: apiKeyToken.apiKey,
@@ -39,7 +64,9 @@ var t = TrelloPowerUp.iframe();
                   // Place this card at the top of our list 
                   idList: listID,
                   pos: 'top'            
-              }, creationSuccess);
+              }, function(cardData) {
+                  creationCardCallback(cardData, story);
+                  });
             });        
     
           }, "json"); 
@@ -76,4 +103,6 @@ document.addEventListener('keyup', function(e) {
   if(e.keyCode == 27) {
     t.closeOverlay().done();
   }
+});
+
 });

@@ -1,3 +1,6 @@
+define(["powerup","jquery"], function() {
+
+
 /* global TrelloPowerUp */
 
 var Promise = TrelloPowerUp.Promise;
@@ -34,3 +37,5 @@ document.getElementById('save').addEventListener('click', function(){
     t.closePopup();
   })
 })
+
+});
