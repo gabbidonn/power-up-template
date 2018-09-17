@@ -4,7 +4,10 @@ define(["powerup","jquery"], function() {
   let selectedStatuses = {
     'awaitingreview_story': 'Awaiting Review',
     'reviewing_story': 'In Review',
-    'approved_story': 'Approved'
+    'approved_story': 'Approved',
+    'accepted_story': 'Approved',
+    'inprogress_story': 'Story Writing in Progress',
+    'disapproved_story': 'Awaiting Second Review',    
   };
 
   /* global TrelloPowerUp */
@@ -23,10 +26,10 @@ var t = TrelloPowerUp.iframe();
           storyID: storyID,
           tracURL: 'https://platinum.deltafs.net/trac/ticket/' + storyID        
         };
-        t.set('board', 'shared', storyID,tracData)
-        .then(function() {
-          // successfully added trac data.  Now add the comments
-
+        t.render()
+        t.set('board', 'shared', createdCard.id,tracData)
+        .then(function() {  
+          // successfully added trac data.  Now add the comments          
         });
 
       }
@@ -71,23 +74,20 @@ var t = TrelloPowerUp.iframe();
       t.get('member', 'private', 'token')
       .then(function(apiKeyToken) {
         stories.forEach((story) => {
-          t.get('board', 'shared', story)
-          .then(function(existingStory) {
-            console.dir(existingStory);
-            if(!existingStory) {
-              // Set the story parameter ready for creation.
-              storyParams.params = [story];
-              createCardCallback(apiKeyToken);
-            }            
-          })            
+            storyParams.params = [story];
+            createCardCallback(apiKeyToken);                       
         });
-      });
+
+      })
+      .then(function() {
+        t.closePopup();
+      })
      };
 
      // Get all stories currently outstanding for PO.
      let params = {};
      params.method = "ticket.query";
-     params.params = ["status=awaitingreview_story&status=reviewing_story&backlog=Business&version=21.1&group=status&order=priority&max=0"];
+     params.params = ["status=!accepted_story&status=!closed&sprint=&version=21.1&type=story&milestone=&max=0"];
      
      // Get the stories.
      $.post(tracUrl,params,storiesCallback, "json");
