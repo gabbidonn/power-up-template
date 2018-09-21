@@ -1,14 +1,4 @@
-define(["powerup","jquery"], function() {
-
-
-  let selectedStatuses = {
-    'awaitingreview_story': 'Awaiting Review',
-    'reviewing_story': 'In Review',
-    'approved_story': 'Approved',
-    'accepted_story': 'Approved',
-    'inprogress_story': 'Story Writing in Progress',
-    'disapproved_story': 'Awaiting Second Review',    
-  };
+define(["powerup","jquery","trac-config"], function() {
 
   /* global TrelloPowerUp */
 var Promise = TrelloPowerUp.Promise;
@@ -16,6 +6,8 @@ var Promise = TrelloPowerUp.Promise;
 var t = TrelloPowerUp.iframe();
 
     let lists = t.arg("lists");
+    //let cards = t.arg("cards");
+
     
      let tracUrl = '/genius.co.uk/proxy.php';
 
@@ -24,35 +16,12 @@ var t = TrelloPowerUp.iframe();
         // Created story
         let tracData = {
           storyID: storyID,
-          tracURL: 'https://platinum.deltafs.net/trac/ticket/' + storyID        
         };
-        t.render()
-        t.set('board', 'shared', createdCard.id,tracData)
-        .then(function() {  
-          // successfully added trac data.  Now add the comments          
-        });
-
-      }
-     };
-
-     let storyParams = {
-      method: 'ticket.get',
-      params: []                  
-    };
-
-    let createCardCallback = function(apiKeyToken) {
-        $.post(tracUrl, storyParams, function(storyInfo) {
-          
-          // Now we need to go through each array and create the card here
-          storyInfo.forEach(function(storyDetail) {
-            
-            let selectedList = lists.find(function(list) {
-              return selectedStatuses[storyDetail.status] == list.name;  
-            });
-            let listID = selectedList ? selectedList.id : lists[0].id;
-            let storyID = storyParams.params[0];
-            if(storyDetail.summary && storyDetail.description) {
-                $.post('https://api.trello.com/1/cards/',{
+        
+      
+        t.get('member', 'private', 'token')
+        .then(function(apiKeyToken) {
+          $.post('https://api.trello.com/1/cards/',{
                     token: apiKeyToken.token,
                     key: apiKeyToken.apiKey,
                     name: storyDetail.summary, 
@@ -64,9 +33,67 @@ var t = TrelloPowerUp.iframe();
                 }, function(cardData) {
                     creationCardCallback(cardData, storyParams.params[0]);
                     });
+        })
+
+        
+        t.set('board', 'shared', createdCard.id,tracData)
+        .then(function() {  
+          // successfully added trac data.  Now add the comments          
+        });
+
+      }
+     };
+
+     
+    let createCardCallback = function(apiKeyToken, storyParam) {
+      
+      let tracAPI = new TrackAPI();
+
+        tracAPI.query(storyParm, function(storyInfo) {
+          // Now we need to go through each array and create the card here
+          storyInfo.forEach(function(storyDetail) {
+            
+            console.dir(storyDetail);
+            
+            let selectedList = lists.find(function(list) {
+              return storyStatuses.find(() => {
+                  
+              }) //selectedStatuses[storyDetail.status] == list.name;  
+            });
+
+            let listID = selectedList ? selectedList.id : lists[0].id;
+            let storyID = storyParam.params[0];
+            if(storyDetail.summary && storyDetail.description) {
+                $.post('https://api.trello.com/1/cards/',{
+                    token: apiKeyToken.token,
+                    key: apiKeyToken.apiKey,
+                    name: storyDetail.summary, 
+                    desc: storyDetail.description,
+                    urlSource: "https://platinum.deltafs.net/trac/ticket/" + storyID,
+                    // Place this card at the top of our list 
+                    idList: listID,
+                    pos: 'top'            
+                }, function(cardData) {
+                    
+                    // Now lets sort out the webhook for this new story.
+                    /*$.post('https://api.trello.com/1/webhooks/',{
+                    token: apiKeyToken.token,
+                    key: apiKeyToken.apiKey,
+                    name: storyDetail.summary, 
+                    desc: storyDetail.description,
+                    urlSource: "https://platinum.deltafs.net/trac/ticket/" + storyID,
+                    // Place this card at the top of our list 
+                    idList: listID,
+                    pos: 'top'            
+                    }, function(cardData) {
+                        
+                    });*/
+
+                    creationCardCallback(cardData, storyParam.params[0]);
+                    });
               }
           });
-        }, "json");       
+        });               
     };
 
     let storiesCallback = function(stories) {
@@ -74,8 +101,11 @@ var t = TrelloPowerUp.iframe();
       t.get('member', 'private', 'token')
       .then(function(apiKeyToken) {
         stories.forEach((story) => {
-            storyParams.params = [story];
-            createCardCallback(apiKeyToken);                       
+          let storyParams = {
+            method: 'ticket.get',
+            params: [story]                  
+          };
+            createCardCallback(apiKeyToken, storyParams);                       
         });
 
       })
