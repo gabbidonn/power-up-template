@@ -1,6 +1,3 @@
-define(["jquery"], function() {
-
-
 const storyStatuses = [
 {
     'trac-status': 'inprogress_story',
@@ -41,15 +38,9 @@ const storyStatuses = [
 
 
 function TracAPI() {
-
-    const apiUrl = '/genius.co.uk/proxy.php';
+    this.apiUrl = '/genius.co.uk/trac-service/proxy.php';
     
-    function query(params, callback) {
-        $.post(this.apiUrl, parms, callback, json);
+    this.query = function (params, callback) {
+        $.post(this.apiUrl, params, callback, "json");
     }
 }
-
-
-});
-
-

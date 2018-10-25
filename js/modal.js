@@ -1,16 +1,18 @@
-define(["powerup","jquery","trac-config"], function() {
+define(["powerup","jquery","trello","trac"], function() {
 
   /* global TrelloPowerUp */
 var Promise = TrelloPowerUp.Promise;
 
 var t = TrelloPowerUp.iframe();
 
+let tracAPI = new TracAPI();
+
+let trelloAPI = new TrelloAPI();
+
     let lists = t.arg("lists");
     //let cards = t.arg("cards");
 
     
-     let tracUrl = '/genius.co.uk/proxy.php';
-
      let creationCardCallback = function(createdCard, storyID) {
       if(createdCard) {
         // Created story
@@ -18,7 +20,6 @@ var t = TrelloPowerUp.iframe();
           storyID: storyID,
         };
         
-      
         t.get('member', 'private', 'token')
         .then(function(apiKeyToken) {
           $.post('https://api.trello.com/1/cards/',{
@@ -45,26 +46,39 @@ var t = TrelloPowerUp.iframe();
      };
 
      
-    let createCardCallback = function(apiKeyToken, storyParam) {
-      
-      let tracAPI = new TrackAPI();
+    let createOrUpdateCardCallback = function(apiKeyToken, storyParam) {
 
-        tracAPI.query(storyParm, function(storyInfo) {
-          // Now we need to go through each array and create the card here
-          storyInfo.forEach(function(storyDetail) {
-            
-            console.dir(storyDetail);
-            
+        tracAPI.query(storyParam, function(storyInfo) {
+          
+          // Get the story detail taken from the story information we have retrieved.
+          let storyDetail = storyInfo[3];  
+          
+          // Attempt to attach the new story to the correct list in trello.
             let selectedList = lists.find(function(list) {
-              return storyStatuses.find(() => {
-                  
-              }) //selectedStatuses[storyDetail.status] == list.name;  
-            });
+              return storyStatuses.find((status) => {
+                // Check if the current list requires a keyword status
+                if(status["trac-keyword"]) {
+                  // requires a keywords status, so lets do a search for the status and the keyword
+                  return storyDetail.keywords.toLowerCase().indexOf(status["trac-keyword"].toLowerCase()) > -1 && 
+                        storyDetail.status.toLowerCase() == status["trac-status"].toLowerCase() && 
+                        list.name.toLowerCase().indexOf(status["trello-list"].toLowerCase()) > -1
+                }
 
+                return storyDetail.status.toLowerCase() == status["trac-status"].toLowerCase() && 
+                list.name.toLowerCase().indexOf(status["trello-list"].toLowerCase()) > -1;
+                
+              });
+            });
+            
+            // Get the associated list id, or default to the first list.
             let listID = selectedList ? selectedList.id : lists[0].id;
+            
             let storyID = storyParam.params[0];
+            
+            // Check a summary and description exists for story
             if(storyDetail.summary && storyDetail.description) {
-                $.post('https://api.trello.com/1/cards/',{
+              
+              trelloAPI.cards({
                     token: apiKeyToken.token,
                     key: apiKeyToken.apiKey,
                     name: storyDetail.summary, 
@@ -75,29 +89,25 @@ var t = TrelloPowerUp.iframe();
                     pos: 'top'            
                 }, function(cardData) {
                     
-                    // Now lets sort out the webhook for this new story.
-                    /*$.post('https://api.trello.com/1/webhooks/',{
-                    token: apiKeyToken.token,
-                    key: apiKeyToken.apiKey,
-                    name: storyDetail.summary, 
-                    desc: storyDetail.description,
-                    urlSource: "https://platinum.deltafs.net/trac/ticket/" + storyID,
-                    // Place this card at the top of our list 
-                    idList: listID,
-                    pos: 'top'            
-                    }, function(cardData) {
-                        
-                    });*/
+                    // Now lets publish the webhook for this story.
+                    trelloAPI.webhooks(
+                    cardData.id,
+                    storyDetail.summary,
+                    apiKeyToken.token,
+                    apiKeyToken.apiKey,
+                    storyID,
+                    function(webhook) {
+                      console.log('Webhook Successful: ' + storyID);
+                    });
 
                     creationCardCallback(cardData, storyParam.params[0]);
                     });
               }
-          });
+          
         });               
     };
 
     let storiesCallback = function(stories) {
-      
       t.get('member', 'private', 'token')
       .then(function(apiKeyToken) {
         stories.forEach((story) => {
@@ -105,7 +115,7 @@ var t = TrelloPowerUp.iframe();
             method: 'ticket.get',
             params: [story]                  
           };
-            createCardCallback(apiKeyToken, storyParams);                       
+            createOrUpdateCardCallback(apiKeyToken, storyParams);                       
         });
 
       })
@@ -120,10 +130,8 @@ var t = TrelloPowerUp.iframe();
      params.params = ["status=!accepted_story&status=!closed&sprint=&version=21.1&type=story&milestone=&max=0"];
      
      // Get the stories.
-     $.post(tracUrl,params,storiesCallback, "json");
+     tracAPI.query(params,storiesCallback);
      
-
-
 // Important! If you are using the overlay, you should implement
 // the following two methods to ensure that closing the overlay
 // is simple and consistent for the Trello user

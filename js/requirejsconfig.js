@@ -3,6 +3,11 @@ requirejs.config({
     paths: {
         jquery: 'jquery',
         powerup: '//p.trellocdn.com/power-up.min',
-        'trac-config': 'trac/config',                
+        trac: 'trac/api',  
+        trello: 'trello/api'              
+    },
+    shim: {
+        "trac": ["jquery"],
+        "trello": ["jquery", "powerup"]
     }
   });
