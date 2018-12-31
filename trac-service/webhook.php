@@ -1,14 +1,13 @@
-<?php 
-
-include_once (__DIR__.'tracStatuses.php');
-
+<?php
 namespace TracRPC\Trello;
+
+include_once (__DIR__. '/tracStatuses.php');
 
 class WebHook
 {
     protected $_storyID;
     
-    function __construct($storyID, ) {
+    function __construct($storyID) {
         $this->_storyID = $storyID;
     }
 
@@ -22,7 +21,7 @@ class WebHook
 
         
         // Get the webhook detail
-        $objDetail = json_decode($detail);
+        $objDetail = json_decode($detail);      
 
         if($objDetail->model) {
             // We have the model.  Lets get the details.
@@ -35,3 +34,5 @@ class WebHook
 
     }    
 }
+
+?>

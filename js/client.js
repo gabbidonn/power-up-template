@@ -165,7 +165,7 @@ var boardButtonCallback = function(t){
             height: 500, // Initial height for iframe; not used if fullscreen is true
             fullscreen: false, // Whether the modal should stretch to take up the whole screen
             callback: function() {}, // optional function called if user closes modal (via `X` or escape)
-            title: 'Hello!', // Optional title for modal header
+            title: 'Trello 2 Trac', // Optional title for modal header
             // You can add up to 3 action buttons on the modal header - max 1 on the right side.
             actions: [{
               icon: GRAY_ICON,

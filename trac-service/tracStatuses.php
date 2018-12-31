@@ -3,7 +3,7 @@
 class StoryStatus 
 {
 
-static getTracStatuses() {
+static function getTracStatuses() {
     return json_decode("[
         {
             'trac-status': 'inprogress_story',

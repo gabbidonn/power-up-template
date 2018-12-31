@@ -1,9 +1,9 @@
 define(["powerup","jquery","trello","trac"], function() {
 
   /* global TrelloPowerUp */
-var Promise = TrelloPowerUp.Promise;
+let Promise = TrelloPowerUp.Promise;
 
-var t = TrelloPowerUp.iframe();
+let t = TrelloPowerUp.iframe();
 
 let tracAPI = new TracAPI();
 
@@ -22,6 +22,7 @@ let trelloAPI = new TrelloAPI();
         
         t.get('member', 'private', 'token')
         .then(function(apiKeyToken) {
+          console.dir(apiKeyToken);
           $.post('https://api.trello.com/1/cards/',{
                     token: apiKeyToken.token,
                     key: apiKeyToken.apiKey,
@@ -55,6 +56,8 @@ let trelloAPI = new TrelloAPI();
           
           // Attempt to attach the new story to the correct list in trello.
             let selectedList = lists.find(function(list) {
+              
+              // TODO: storyStatuses needs to be retrieved in a better way instead of a global constant
               return storyStatuses.find((status) => {
                 // Check if the current list requires a keyword status
                 if(status["trac-keyword"]) {
@@ -124,14 +127,17 @@ let trelloAPI = new TrelloAPI();
       })
      };
 
-     // Get all stories currently outstanding for PO.
-     let params = {};
-     params.method = "ticket.query";
-     params.params = ["status=!accepted_story&status=!closed&sprint=&version=21.1&type=story&milestone=&max=0"];
-     
-     // Get the stories.
-     tracAPI.query(params,storiesCallback);
-     
+// Get all stories currently outstanding for PO.
+let params = {};
+params.method = "ticket.query";
+params.params = ["status=!accepted_story&status=!closed&sprint=&version=21.1&type=story&milestone=&max=0"];
+
+// Get the stories.
+tracAPI.query(params,storiesCallback);
+
+
+
+
 // Important! If you are using the overlay, you should implement
 // the following two methods to ensure that closing the overlay
 // is simple and consistent for the Trello user

@@ -1,10 +1,14 @@
 
 <?php
+// When debugging...
+/*error_reporting(E_ALL);
+ini_set('display_errors', 0);*/
 
-include_once (__DIR__.'tracRPC.php');
-include_once (__DIR__.'webhook.php');
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+include_once (__DIR__ . "/tracRPC.php");
+include_once (__DIR__. "/webhook.php");
+
+use TracRPC;
+
 
 // TODO: better security, don't store passwords in magic strings...
 $credentials = array('username' => 'delta.api' , 'password' => 'D3Lt445c!');
@@ -15,7 +19,7 @@ if(isset($_POST["multicall"])) {
 $storyID = $_GET["storyID"];
 $webHook = $_GET["webHook"];
 
-$trac = new \TracRPC\TracRPC('https://platinum.deltafs.net/trac/login/jsonrpc', $credentials);
+$trac = new TracRPC\TracRPC('https://platinum.deltafs.net/trac/login/jsonrpc', $credentials);
 $method = $_POST["method"];
 $params = $_POST["params"];
     
